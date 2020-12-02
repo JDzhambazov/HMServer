@@ -20,13 +20,11 @@ const saveAdress = (req, res) => {
     apartments,
   } = req.body;
 
-  console.log('adress')
-
   bcrypt.genSalt(10, async (err, salt) => {
     const hashPass = await bcrypt.hash(password, salt)
     const adress = new Adress({
       username,
-      password:hashPass,
+      password: hashPass,
       city,
       street,
       number,
@@ -40,15 +38,16 @@ const saveAdress = (req, res) => {
 
       const token = jwt.sign({
         userID: newAdress._id,
-        username: newAdress.username
+        //username: newAdress.username
       }, privateKey);
 
       //res.cookie('aid', token,{maxAge:3600000})
       res.cookie('aid', token)
-      res.cookie('User', username)
-
-      res.redirect('/')
+      //res.cookie('User', username)
+      res.status(200).send(newAdress)
+      //res.redirect('/')
     } catch (err) {
+      res.sendStatus(401)
       console.log(err)
       //res.redirect('/signup?error=true')
     }
@@ -56,52 +55,52 @@ const saveAdress = (req, res) => {
   });
 };
 
-// const verifyUser = async (req, res) => {
-//   const {
-//     username,
-//     password,
-//   } = req.body;
+const verifyAddress = async (req, res) => {
+  const {
+    username,
+    password,
+  } = req.body;
 
-//   const user = await User.findOne({ username })
+  const user = await Adress.findOne({ username })
 
-//   if (user !== null) {
-//     const status = await bcrypt.compare(password, user.password);
+  if (user !== null) {
+    const status = await bcrypt.compare(password, user.password);
 
-//     if (status) {
-//       const token = generateToken({
-//         userID: user._id,
-//         username: user.username
-//       })
+    if (status) {
+      const token = generateToken({
+        userID: user._id,
+        //username: user.username
+      })
 
-//       //res.cookie('aid', token,{maxAge:3600000})
-//       res.cookie('aid', token)
-//       res.cookie('User',username)
-//       res.redirect('/')// {
+      //res.cookie('aid', token,{maxAge:3600000})
+      res.cookie('aid', token, { httpOnly: true })
+      //res.cookie('User',username)
+      //res.redirect('/')// {
+      res.send(user)
+    } else {
+      res.redirect('/login?error=Wrong password')
+    }
 
-//     } else {
-//       res.redirect('/login?error=Wrong password')
-//     }
+    return status;
+  } else {
+    res.redirect('/login?error=User is not exist')
+  }
 
-//     return status;
-//   } else {
-//     res.redirect('/login?error=User is not exist')
-//   }
-
-// }
+}
 
 // const authAccess = (req, res, next) => {
-//     const token = req.cookies['aid']
-//     if (!token) {
-//       return res.redirect('/')
-//     }
-
-//     try {
-//       jwt.verify(token, privateKey)
-//       next()
-//     } catch(e) {
-//       return res.redirect('/')
-//     }
+//   const token = req.cookie['aid']
+//   if (!token) {
+//     return res.redirect('/')
 //   }
+
+//   try {
+//     jwt.verify(token, privateKey)
+//     next()
+//   } catch (e) {
+//     return res.redirect('/')
+//   }
+// }
 
 //   const authAccessJSON = (req, res, next) => {
 //     const token = req.cookies['aid']
@@ -147,8 +146,8 @@ const saveAdress = (req, res) => {
 
 module.exports = {
   saveAdress,
-  // verifyUser,
-  // authAccess,
+  verifyAddress,
+  //authAccess,
   // guestAccess,
   // getUserStatus,
   // authAccessJSON

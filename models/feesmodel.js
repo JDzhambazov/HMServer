@@ -1,22 +1,22 @@
 const mongoose = require('mongoose');
 
 const FeeSchema = new mongoose.Schema({
-    adressID: {
+    addressID: {
         type: String,
         required: true
     },
     support: {
-        type: number,
+        type: Number,
         required: true,
     },
     lift: {
-        type: number
+        type: Number
     },
     animal:{
-        type:number
+        type:Number
     },
     repair: {
-        type: number,
+        type: Number,
     },
 });
 

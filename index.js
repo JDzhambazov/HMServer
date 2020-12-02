@@ -3,6 +3,7 @@ global.__appPath = __dirname;
 const config = require('./config/config')[env];
 const app = require('express')();
 const adressRouter = require('./routes/adressrouts')
+const feeRouter = require('./routes/feerouter')
 
 const mongoose = require('mongoose')
 
@@ -31,6 +32,7 @@ mongoose.connect(dbPath,
 
 require('./config/express')(app);
 app.use('/',adressRouter)
+app.use('/',feeRouter)
 
 app.get('/', (req, res, next) => {
     res.send({

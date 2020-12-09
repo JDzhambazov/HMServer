@@ -1,21 +1,25 @@
 const mongoose = require('mongoose');
 
 const ApartmantSchema = new mongoose.Schema({
-    adressID :{
+    addressID :{
         type:String,
         required:true
     },
-    apartmet: {
-        type:String
+    apartment: {
+        type:String,
+        required:true
     },
     lift: {
-        type:Boolean
+        type:Number,
+        default:1,
+        required:true
     },
     people:{
-        type: number
+        type: Number,
+        required:true
     },
     animal:{
-        type:number,
+        type:Number,
         default:0
     }
 });

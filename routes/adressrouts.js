@@ -1,67 +1,51 @@
 const {Router} = require('express')
-const{saveAdress, verifyAddress } = require('../controllers/adress');
-// const{ verifyUser ,guestAccess , getUserStatus} = require('../controllers/adress');
-
-
+const{saveAdress, verifyAddress,authAccess } = require('../controllers/adress');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const router = Router();
 
-// router.get('/login',guestAccess,getUserStatus,(req,res)=>{
-
-//     const error = req.query.error;
-
-//     res.render('loginPage',{
-//         isLoggedIn:req.isLoggedIn,
-//         error
-//     })
-// });
-
 router.post('/login',async(req,res)=>{
-    // const {
-    //     password,
-    // } = req.body;
+    const {
+        password,
+    } = req.body;
 
-    // if (password.lenght < 8 ) {
-    //     res.redirect('/login?error=Passoword is not corect')
-    // }else{
+    if (password.lenght < 5 ) {
+        res.redirect('/login?error=Passoword is not corect')
+    }else{
       verifyAddress(req,res)
-    //}
+    }
 
     
 });
 
-// router.get('/signup',guestAccess,getUserStatus,(req,res)=>{
+router.get('/auth', async(req,res) =>{
+    authAccess(req,res)
+})
 
-//     const error = req.query.error ?'Username or Passwort is not valid':null;
-
-//     res.render('registerPage',{
-//         isLoggedIn:req.isLoggedIn,
-//         error
-//     })
-// });
+// router.post('/verify', async(req,res)=>{
+//     verifyAddress(req,res)
+// })
 
 router.post('/signup', async (req, res) => {
     const {
         password,
-        repeatPassword
+        repassword
     } = req.body;
 
     if (password.lenght < 5 || !password.match(/^[A-Za-z0-9]+$/)) {
         res.redirect('/signup?error=Incorect password length')
-    } else if (password !== repeatPassword) {
+    } else if (password !== repassword) {
         res.redirect('/signup?error=password and repeatPassword must by equal')
     } else {
-    }
-    saveAdress(req, res)
+        saveAdress(req, res)
+     }
 });
 
 router.get('/logout',async (req,res)=>{
-     res.clearCookie('aid').status(200).send({message:"LoggOut"})
-    //res.clearCookie('User');
+    res.clearCookie('Address')
+     res.clearCookie('auth').status(200).send({message:"LoggOut"})
 });
 
-// router.get('/details',authAccess(),async(req,res)=>{
-//     res.send('ok')
-// })
 
 module.exports = router

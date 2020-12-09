@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const PostsSchema = new mongoose.Schema({
-    adressID:{
+    addressID:{
         type:String,
         required:true
     },
@@ -13,13 +13,12 @@ const PostsSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    createrID: {
+    creater: {
         type: String,
         required:true
     },
     createdAt: {
         type:Date,
-        default:Date.now(),
         required:true
     },
 });

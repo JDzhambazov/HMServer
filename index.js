@@ -3,8 +3,9 @@ global.__appPath = __dirname;
 const config = require('./config/config')[env];
 const app = require('express')();
 const adressRouter = require('./routes/adressrouts')
-const feeRouter = require('./routes/feerouter')
-
+const feeRouter = require('./routes/feerouter');
+const postRouter =require('./routes/postroutes')
+const apartmentRouter = require('./routes/apartment')
 const mongoose = require('mongoose')
 
 //MongoDB locally
@@ -33,6 +34,8 @@ mongoose.connect(dbPath,
 require('./config/express')(app);
 app.use('/',adressRouter)
 app.use('/',feeRouter)
+app.use('/',postRouter)
+app.use('/',apartmentRouter)
 
 app.get('/', (req, res, next) => {
     res.send({

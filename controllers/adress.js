@@ -3,14 +3,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { privateKey } = require('../secretConfig');
 
-const generateToken = data => {
-  const token = jwt.sign(data, privateKey)
 
-  return token
+const generateToken = data => {
+  return jwt.sign(data, privateKey, { expiresIn: '1d' })
 }
 
-const saveAdress = (req, res) => {
-  const {
+const saveAdress = async (req, res) => {
+  const address = {
     username,
     password,
     city,
@@ -22,7 +21,7 @@ const saveAdress = (req, res) => {
 
   bcrypt.genSalt(10, async (err, salt) => {
     const hashPass = await bcrypt.hash(password, salt)
-    const adress = new Adress({
+    const address = new Adress({
       username,
       password: hashPass,
       city,
@@ -34,49 +33,56 @@ const saveAdress = (req, res) => {
 
     try {
 
-      const newAdress = await adress.save();
+      const newAdress = await address.save();
 
       const token = jwt.sign({
         userID: newAdress._id,
-        //username: newAdress.username
+        username: newAdress.username
       }, privateKey);
 
-      //res.cookie('aid', token,{maxAge:3600000})
-      res.cookie('aid', token)
-      //res.cookie('User', username)
+      //res.cookie('auth', token,{maxAge:3600000})
+      res.cookie('auth', token)
+      res.cookie('Address', username)
       res.status(200).send(newAdress)
       //res.redirect('/')
     } catch (err) {
-      res.sendStatus(401)
-      console.log(err)
+      res.status(401).send(err)
       //res.redirect('/signup?error=true')
     }
 
   });
+  //const adress = new Adress(address)
+
+  // try {
+  //   const newAdress = await adress.save();
+  //   res.status(200).send(newAdress)
+  // } catch (err) {
+  //   res.status(401).send(err)
+  //   console.log(err)
+  // }
 };
 
 const verifyAddress = async (req, res) => {
   const {
     username,
-    password,
+    password
   } = req.body;
 
-  const user = await Adress.findOne({ username })
+  const address = await Adress.findOne({ username },{__v:0})
+  .populate('apartmentList').lean()
 
-  if (user !== null) {
-    const status = await bcrypt.compare(password, user.password);
-
+  if (address !== null) {
+    const status = address.username === username
     if (status) {
+
       const token = generateToken({
-        userID: user._id,
-        //username: user.username
+        addressID: address._id,
+        username: address.username
       })
 
-      //res.cookie('aid', token,{maxAge:3600000})
-      res.cookie('aid', token, { httpOnly: true })
-      //res.cookie('User',username)
-      //res.redirect('/')// {
-      res.send(user)
+      res.cookie('auth', token)
+      res.cookie('Address', username)
+      res.send(address)
     } else {
       res.redirect('/login?error=Wrong password')
     }
@@ -88,67 +94,22 @@ const verifyAddress = async (req, res) => {
 
 }
 
-// const authAccess = (req, res, next) => {
-//   const token = req.cookie['aid']
-//   if (!token) {
-//     return res.redirect('/')
-//   }
+const authAccess = async (req, res) => {
+  try {
+    const token = req.cookies['auth']
+    const address = req.cookies['Address']
+    const currentAddress = await Adress.findOne({ username: address },{__v:0})
+    .populate('apartmentList').lean()
+    //jwt.verify(token, privateKey)
+    res.send(currentAddress)
+  } catch (e) {
+    res.send(false)
+  }
+}
 
-//   try {
-//     jwt.verify(token, privateKey)
-//     next()
-//   } catch (e) {
-//     return res.redirect('/')
-//   }
-// }
-
-//   const authAccessJSON = (req, res, next) => {
-//     const token = req.cookies['aid']
-//     if (!token) {
-//       return res.json({
-//         error: "Not authenticated"
-//       })
-//     }
-
-//     try {
-//       jwt.verify(token, privateKey)
-//       next()
-//     } catch(e) {
-//       return res.json({
-//         error: "Not authenticated"
-//       })
-//     }
-//   }
-
-//   const guestAccess = (req, res, next) => {
-//     const token = req.cookies['aid']
-//     if (token) {
-//       return res.redirect('/')
-//     }
-//     next()
-//   }
-
-//   const getUserStatus = (req, res, next) => {
-//     const token = req.cookies['aid']
-//     if (!token) {
-//       req.isLoggedIn = false
-//     }
-
-//     try {
-//       jwt.verify(token, privateKey)
-//       req.isLoggedIn = true
-//     } catch(e) {
-//       req.isLoggedIn = false
-//     }
-
-//     next()
-//   }
 
 module.exports = {
   saveAdress,
   verifyAddress,
-  //authAccess,
-  // guestAccess,
-  // getUserStatus,
-  // authAccessJSON
+  authAccess
 }

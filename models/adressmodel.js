@@ -29,10 +29,8 @@ const AdressSchema = new mongoose.Schema({
         required: true
     },
     apartmentList: [{
-        apartment: {
-            type: 'ObjectId',
-            ref: 'Apartmant',
-        }
+        type: 'ObjectId',
+        ref: 'Apartmant',
     }],
     image: {
         type: String

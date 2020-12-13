@@ -31,8 +31,6 @@ const addApartment = async (req, res) => {
         res.sendStatus(401);
         console.log(err)
     }
-
-
 }
 
 const editApartment = async (req, res) => {

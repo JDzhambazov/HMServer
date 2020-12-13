@@ -6,15 +6,16 @@ const adressRouter = require('./routes/adressrouts')
 const feeRouter = require('./routes/feerouter');
 const postRouter =require('./routes/postroutes')
 const apartmentRouter = require('./routes/apartment')
+const expencesRoter = require('./routes/expences')
 const mongoose = require('mongoose')
 
 //MongoDB locally
-const { DB_NAME } = require('./secretConfig')
-const dbPath = `mongodb://localhost:27017/${DB_NAME}`;
+//const { DB_NAME } = require('./secretConfig')
+//const dbPath = `mongodb://localhost:27017/${DB_NAME}`;
 
 //MongoDB cloud
 //change DB_USER and DB_PASSWORD in secretConfig.js
-//const dbPath = config.databaseUrl;
+const dbPath = config.databaseUrl;
 
 
 mongoose.connect(dbPath,
@@ -36,6 +37,7 @@ app.use('/',adressRouter)
 app.use('/',feeRouter)
 app.use('/',postRouter)
 app.use('/',apartmentRouter)
+app.use('/',expencesRoter)
 
 app.get('/', (req, res, next) => {
     res.send({

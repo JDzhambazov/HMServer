@@ -11,12 +11,12 @@ const saveMessage = async (req, res) => {
     try {
         const createMessage = new Post(mess)
         const newMessage = await createMessage.save()
-        res.status(200).send(newMessage)
+        const posts = await Post.find({addressID:mess.addressID }, { __v: 0 })
+        .sort([['createdAt', -1]])
+        res.status(200).send(posts)
     } catch (err) {
         res.status(401).send(err)
     }
-
-
 }
 const getAllMessages = async (req, res) => {
 
@@ -44,12 +44,22 @@ const editMessage = async (req, res) => {
         createdAt
     } = req.body
     const updateMessage = await Post.findByIdAndUpdate(_id, data, { __v: 0 })
-    res.send(updateMessage)
+    const posts = await Post.find({addressID:data.addressID }, { __v: 0 })
+    .sort([['createdAt', -1]])
+    res.send(posts)
 }
 const deleteMessage = async (req, res) => {
     const _id = req.params.id
+    const address =await Post.findById(_id)
     await Post.findByIdAndDelete(_id)
-    res.status(200)
+    try{
+        const posts = await Post.find({addressID:address.addressID }, { __v: 0 })
+        .sort([['createdAt', -1]])
+        res.status(200).send(posts)
+    }catch(err){
+        res.status(401).send(err)
+    }
+ 
 }
 
 module.exports = {

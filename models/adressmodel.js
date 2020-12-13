@@ -32,6 +32,9 @@ const AdressSchema = new mongoose.Schema({
         type: 'ObjectId',
         ref: 'Apartmant',
     }],
+    balanceId:{
+        type:String
+    },
     image: {
         type: String
     },

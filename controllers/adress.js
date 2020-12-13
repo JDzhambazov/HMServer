@@ -2,6 +2,7 @@ const Adress = require('../models/adressmodel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { privateKey } = require('../secretConfig');
+const {addBalance} = require('../controllers/balance')
 
 
 const generateToken = data => {
@@ -21,6 +22,7 @@ const saveAdress = async (req, res) => {
 
   bcrypt.genSalt(10, async (err, salt) => {
     const hashPass = await bcrypt.hash(password, salt)
+    const balanceId = await addBalance()
     const address = new Adress({
       username,
       password: hashPass,
@@ -29,6 +31,7 @@ const saveAdress = async (req, res) => {
       number,
       entrance,
       apartments,
+      balanceId
     })
 
     try {
